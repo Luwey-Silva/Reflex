@@ -6,6 +6,7 @@ on:
     paths:
       - 'tools/**'
       - 'assets/**'
+      - 'docs/index.html'
       - 'index.html'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
@@ -23,34 +24,34 @@ concurrency:
 
 jobs:
   build:
-    name: Gerar a pagina
+    name: Gerar as paginas
     runs-on: ubuntu-latest
     steps:
       - name: Baixar o repositorio
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Preparar o Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
       # regenera a partir do template: o index.html publicado nunca
       # sai de sincronia com tools/page.template.html
-      - name: Gerar o index.html
+      - name: Gerar a pagina de Dualidade
         run: python3 tools/build_page.py
 
+      # duas paginas, dois caminhos:
+      #   /         -> wiki de Dualidade (index.html da raiz)
+      #   /reflex/  -> teste de reacao (docs/index.html)
       - name: Montar o site
         run: |
-          mkdir -p _site
-          cp index.html _site/index.html
+          mkdir -p _site/reflex
+          cp index.html      _site/index.html
+          cp docs/index.html _site/reflex/index.html
           touch _site/.nojekyll
 
-      # enablement: liga o GitHub Pages e aponta a origem para Actions
-      # na primeira execucao, sem precisar mexer em Settings
-      - name: Configurar o Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
+      - name: Conferir o que vai ao ar
+        run: find _site -type f | sort
 
       - name: Enviar o artefato
         uses: actions/upload-pages-artifact@v3
