@@ -1,0 +1,964 @@
+<meta name="description" content="Wiki de desenvolvimento e página-trailer de Dualidade: Uma Jornada do Eu — RPG psicológico em RPG Maker MV sobre a Cidade da Luz, a Cidade das Sombras e as perguntas que ninguém quer responder.">
+<title>Dualidade: Uma Jornada do Eu — wiki de desenvolvimento</title>
+
+<style>
+/* ─────────────────────────────────────────────
+   FONTES  ·  Bodoni Moda (display) + Fira Sans / Fira Mono
+   ───────────────────────────────────────────── */
+@font-face{
+  font-family:'Bodoni Moda';font-style:italic;font-weight:400 900;font-display:swap;
+  src:url({{F_BODONI_IT}}) format('woff2');
+}
+@font-face{
+  font-family:'Bodoni Moda';font-style:normal;font-weight:400 900;font-display:swap;
+  src:url({{F_BODONI}}) format('woff2');
+}
+@font-face{
+  font-family:'Fira Sans';font-style:normal;font-weight:400;font-display:swap;
+  src:url({{F_SANS_400}}) format('woff2');
+}
+@font-face{
+  font-family:'Fira Sans';font-style:normal;font-weight:700;font-display:swap;
+  src:url({{F_SANS_700}}) format('woff2');
+}
+@font-face{
+  font-family:'Fira Mono';font-style:normal;font-weight:400;font-display:swap;
+  src:url({{F_MONO}}) format('woff2');
+}
+
+/* ─────────────────────────────────────────────
+   TOKENS
+   Dois mundos declarados uma vez. O tema decide qual
+   deles é o chão da página e qual é o chão de .band--inverse.
+   ───────────────────────────────────────────── */
+:root{
+  /* mundo LUZ — o papel texturizado da key art */
+  --paper:#EFEBE2;      --paper-2:#F8F6F1;
+  --paper-fg:#141210;   --paper-fg-soft:#5F5849;
+  --paper-line:rgba(20,18,16,.20);
+
+  /* mundo SOMBRA — a nanquim hachurada da key art */
+  --ink:#0C0C10;        --ink-2:#16161C;
+  --ink-fg:#EAE6DC;     --ink-fg-soft:#9B968A;
+  --ink-line:rgba(234,230,220,.22);
+
+  /* acentos tirados da própria ilustração */
+  --iris-paper:#0F6E8C; --iris-ink:#F2AE24;
+  --amber:#C07A06;      --amber-on-ink:#F2AE24;
+  --plum:#7E4560;       --plum-on-ink:#C98AA0;
+
+  --shell:min(1140px, 100% - clamp(2rem, 8vw, 7rem));
+
+  --t-1:.72rem; --t-2:.82rem; --t-3:.95rem; --t-4:1.06rem;
+  --t-5:1.32rem; --t-6:1.7rem; --t-7:2.25rem;
+
+  color-scheme:light dark;
+}
+
+/* LUZ é o chão (tema claro) */
+:root,
+:root[data-theme="light"], :root[data-theme="luz"]{
+  --ground:var(--paper); --ground-2:var(--paper-2);
+  --fg:var(--paper-fg); --fg-soft:var(--paper-fg-soft);
+  --line:var(--paper-line);
+  --accent:var(--iris-paper); --tint-luz:var(--amber); --tint-sombra:var(--plum);
+  --keyline:#141210;
+}
+.band--inverse,
+:root[data-theme="light"] .band--inverse, :root[data-theme="luz"] .band--inverse{
+  --ground:var(--ink); --ground-2:var(--ink-2);
+  --fg:var(--ink-fg); --fg-soft:var(--ink-fg-soft);
+  --line:var(--ink-line);
+  --accent:var(--iris-ink); --tint-luz:var(--amber-on-ink); --tint-sombra:var(--plum-on-ink);
+  --keyline:#EAE6DC;
+}
+
+/* SOMBRA é o chão (tema escuro) */
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:var(--ink); --ground-2:var(--ink-2);
+    --fg:var(--ink-fg); --fg-soft:var(--ink-fg-soft);
+    --line:var(--ink-line);
+    --accent:var(--iris-ink); --tint-luz:var(--amber-on-ink); --tint-sombra:var(--plum-on-ink);
+    --keyline:#EAE6DC;
+  }
+  .band--inverse{
+    --ground:var(--paper); --ground-2:var(--paper-2);
+    --fg:var(--paper-fg); --fg-soft:var(--paper-fg-soft);
+    --line:var(--paper-line);
+    --accent:var(--iris-paper); --tint-luz:var(--amber); --tint-sombra:var(--plum);
+    --keyline:#141210;
+  }
+}
+:root[data-theme="dark"], :root[data-theme="sombra"]{
+  --ground:var(--ink); --ground-2:var(--ink-2);
+  --fg:var(--ink-fg); --fg-soft:var(--ink-fg-soft);
+  --line:var(--ink-line);
+  --accent:var(--iris-ink); --tint-luz:var(--amber-on-ink); --tint-sombra:var(--plum-on-ink);
+  --keyline:#EAE6DC;
+}
+:root[data-theme="dark"] .band--inverse, :root[data-theme="sombra"] .band--inverse{
+  --ground:var(--paper); --ground-2:var(--paper-2);
+  --fg:var(--paper-fg); --fg-soft:var(--paper-fg-soft);
+  --line:var(--paper-line);
+  --accent:var(--iris-paper); --tint-luz:var(--amber); --tint-sombra:var(--plum);
+  --keyline:#141210;
+}
+
+/* ─────────────────────────────────────────────
+   BASE
+   ───────────────────────────────────────────── */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+section[id], header[id]{scroll-margin-top:4.6rem}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--fg);
+  font:400 var(--t-4)/1.62 'Fira Sans', system-ui, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  transition:background-color .55s ease, color .55s ease;
+}
+h1,h2,h3,h4{margin:0;font-family:'Bodoni Moda', Georgia, serif;font-weight:700;line-height:1.06;text-wrap:balance;font-optical-sizing:auto}
+p{margin:0}
+a{color:inherit}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+
+.mono{font-family:'Fira Mono', ui-monospace, monospace}
+.label{
+  font-family:'Fira Mono', ui-monospace, monospace;
+  font-size:var(--t-1);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);
+}
+.lede{font-size:var(--t-5);line-height:1.45;color:var(--fg)}
+.soft{color:var(--fg-soft)}
+.measure{max-width:64ch}
+
+.shell{width:var(--shell);margin-inline:auto}
+
+/* ─────────────────────────────────────────────
+   FAIXAS  ·  o rasgo é a assinatura da página
+   ───────────────────────────────────────────── */
+.band{padding-block:clamp(3.5rem, 8vw, 6.5rem);background:var(--ground);color:var(--fg);transition:background-color .55s ease, color .55s ease}
+.band + .band{padding-top:clamp(3rem, 7vw, 5.5rem)}
+.band + .band.band--inverse{padding-top:clamp(4.5rem, 9vw, 7rem)}
+
+.band--inverse{
+  padding-block:clamp(4.5rem, 9vw, 7rem);
+  clip-path:polygon(
+    0 13px, 6% 3px, 12% 16px, 19% 5px, 27% 18px, 34% 6px, 41% 15px, 49% 2px,
+    56% 14px, 63% 4px, 71% 17px, 78% 6px, 85% 16px, 92% 4px, 100% 13px,
+    100% calc(100% - 11px), 94% calc(100% - 2px), 87% calc(100% - 15px),
+    80% calc(100% - 5px), 73% calc(100% - 17px), 66% calc(100% - 4px),
+    59% calc(100% - 14px), 52% calc(100% - 3px), 45% calc(100% - 16px),
+    38% calc(100% - 6px), 31% calc(100% - 15px), 24% calc(100% - 3px),
+    17% calc(100% - 17px), 10% calc(100% - 5px), 0 calc(100% - 12px)
+  );
+}
+
+.head{display:flex;flex-direction:column;gap:.85rem;margin-bottom:2.6rem}
+.head h2{font-size:clamp(1.75rem, 4.2vw, var(--t-7))}
+.head p{max-width:58ch;color:var(--fg-soft);font-size:var(--t-4)}
+
+/* ─────────────────────────────────────────────
+   NAV
+   ───────────────────────────────────────────── */
+.nav{
+  position:sticky;top:0;z-index:60;
+  display:flex;align-items:center;gap:1.5rem;
+  padding:.7rem 0;
+  background:color-mix(in srgb, var(--ground) 90%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  transition:background-color .55s ease, border-color .55s ease;
+}
+.nav__inner{width:var(--shell);margin-inline:auto;display:flex;align-items:center;gap:1.5rem}
+.nav__brand{display:flex;align-items:baseline;gap:.5rem;font-family:'Bodoni Moda',Georgia,serif;font-style:italic;font-weight:900;font-size:1.15rem;letter-spacing:-.01em;text-decoration:none;flex:none;margin-right:auto}
+.nav__brand span{font-family:'Fira Mono',monospace;font-style:normal;font-weight:400;font-size:var(--t-1);letter-spacing:.1em;text-transform:uppercase;color:var(--fg-soft)}
+.nav__links{display:flex;gap:1.35rem;font-size:var(--t-2)}
+.nav__links a{color:var(--fg-soft);text-decoration:none;white-space:nowrap;padding-block:.2rem}
+.nav__links a:hover{color:var(--fg)}
+
+@media (max-width:1000px){.nav__links{display:none}}
+@media (max-width:520px){.nav__brand span{display:none}}
+.flip{
+  flex:none;display:inline-flex;align-items:center;gap:.6rem;
+  border:1.5px solid var(--keyline);background:transparent;color:var(--fg);
+  border-radius:0;padding:.4rem .75rem;cursor:pointer;
+  font-family:'Fira Mono',monospace;font-size:var(--t-1);letter-spacing:.08em;text-transform:uppercase;
+  transition:background-color .25s ease, color .25s ease;
+}
+.flip:hover{background:var(--fg);color:var(--ground)}
+.flip__disc{width:13px;height:13px;border-radius:50%;flex:none;border:1.5px solid currentColor;background:linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%)}
+
+/* ─────────────────────────────────────────────
+   HERO
+   ───────────────────────────────────────────── */
+.hero{position:relative;overflow:hidden;padding-block:clamp(2.5rem,6vw,4.5rem) clamp(3rem,7vw,5rem)}
+.hero__ink{
+  position:absolute;inset:0 0 0 51%;z-index:0;
+  background:var(--ink);
+  clip-path:polygon(15px 0, 4px 6%, 19px 13%, 6px 21%, 17px 29%, 3px 37%, 16px 45%, 5px 53%,
+                    18px 61%, 4px 69%, 15px 77%, 6px 85%, 17px 92%, 8px 100%, 100% 100%, 100% 0);
+}
+:root[data-theme="dark"] .hero__ink, :root[data-theme="sombra"] .hero__ink{background:var(--paper)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="luz"]) .hero__ink{background:var(--paper)}}
+
+.hero__grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr;gap:2.5rem;align-items:center}
+
+.hero__type{display:flex;flex-direction:column;gap:1.15rem;max-width:34rem}
+.hero__title{font-size:0}
+.hero__title b{
+  display:block;font-family:'Bodoni Moda',Georgia,serif;font-style:italic;font-weight:900;
+  font-size:clamp(3.1rem, 12vw, 7.2rem);line-height:.86;letter-spacing:-.028em;
+}
+.hero__title i{
+  display:block;font-family:'Bodoni Moda',Georgia,serif;font-style:italic;font-weight:400;
+  font-size:clamp(1.15rem, 3.6vw, 2.05rem);line-height:1.15;letter-spacing:.01em;
+  color:var(--fg-soft);margin-top:.5rem;
+}
+.hero__rule{height:2px;background:var(--keyline);width:min(100%, 21rem)}
+.hero__tag{font-size:var(--t-5);line-height:1.4;max-width:26ch}
+.hero__tag em{font-style:italic;color:var(--accent)}
+
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{
+  font-family:'Fira Mono',monospace;font-size:var(--t-1);letter-spacing:.05em;
+  border:1px solid var(--line);padding:.3rem .6rem;color:var(--fg-soft);white-space:nowrap;
+}
+.chip--flag{border-color:var(--accent);color:var(--accent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:.4rem}
+.btn{
+  display:inline-block;text-decoration:none;padding:.72rem 1.35rem;
+  font-family:'Fira Mono',monospace;font-size:var(--t-2);letter-spacing:.06em;text-transform:uppercase;
+  border:1.5px solid var(--keyline);transition:transform .2s ease, background-color .2s ease, color .2s ease;
+}
+.btn--solid{background:var(--fg);color:var(--ground)}
+.btn--solid:hover{transform:translateY(-2px)}
+.btn--ghost:hover{background:var(--fg);color:var(--ground)}
+
+/* pôster */
+.poster{justify-self:center;width:min(100%, 19.5rem);margin:0}
+.poster__frame{position:relative;display:block}
+.poster img{width:100%;height:auto;border:2px solid var(--keyline)}
+:root[data-theme="dark"] .poster img, :root[data-theme="sombra"] .poster img{border-color:var(--paper-fg)}
+.poster__veil{
+  position:absolute;top:2px;bottom:2px;pointer-events:none;
+  transition:opacity .55s ease;
+  backdrop-filter:saturate(.28) brightness(.62) contrast(1.1);
+}
+.poster__veil--luz{left:2px;right:47.1%}
+.poster__veil--sombra{left:52.9%;right:2px}
+/* no tema Luz o lado vivo é a Luz: a Sombra recua */
+.poster__veil--luz{opacity:0}
+.poster__veil--sombra{opacity:1}
+:root[data-theme="dark"] .poster__veil--luz, :root[data-theme="sombra"] .poster__veil--luz{opacity:1}
+:root[data-theme="dark"] .poster__veil--sombra, :root[data-theme="sombra"] .poster__veil--sombra{opacity:0}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]):not([data-theme="luz"]) .poster__veil--luz{opacity:1}
+  :root:not([data-theme="light"]):not([data-theme="luz"]) .poster__veil--sombra{opacity:0}
+}
+.poster__cap{
+  margin-top:.7rem;font-family:'Fira Mono',monospace;font-size:var(--t-1);
+  letter-spacing:.05em;color:var(--ink-fg-soft);text-align:right;
+}
+:root[data-theme="dark"] .poster__cap, :root[data-theme="sombra"] .poster__cap{color:var(--paper-fg-soft)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="luz"]) .poster__cap{color:var(--paper-fg-soft)}}
+
+@media (min-width:860px){
+  .hero{padding-block:clamp(3rem,6vw,5.5rem) clamp(4rem,8vw,6.5rem)}
+  .hero__grid{grid-template-columns:1fr minmax(17rem, 19.5rem);gap:clamp(2rem,5vw,4rem)}
+  .poster{justify-self:end}
+}
+@media (max-width:859px){
+  .hero__ink{display:none}
+  .poster__cap{color:var(--fg-soft);text-align:left}
+  /* no celular o poster inteiro engolia a primeira tela: vira faixa */
+  .poster{order:-1;width:100%}
+  .poster__frame{aspect-ratio:5/4;overflow:hidden}
+  .poster img{width:100%;height:100%;object-fit:cover;object-position:center 38%}
+}
+
+/* ─────────────────────────────────────────────
+   TEASER  ·  cartelas de trailer
+   ───────────────────────────────────────────── */
+.teaser{min-height:15.5rem;display:flex;flex-direction:column;justify-content:center;gap:1.6rem}
+.teaser__stage{position:relative;min-height:8.5rem;display:grid;place-items:start}
+.teaser__line{
+  grid-area:1/1;margin:0;
+  font-family:'Bodoni Moda',Georgia,serif;font-style:italic;font-weight:400;
+  font-size:clamp(1.5rem, 5vw, 2.8rem);line-height:1.15;max-width:20ch;
+  opacity:0;transform:translateY(8px);
+  transition:opacity .32s ease, transform .32s ease;
+}
+.teaser__line.on{opacity:1;transform:none}
+.teaser__line:last-child{font-weight:900;font-size:clamp(2.2rem, 8vw, 4.4rem);letter-spacing:-.02em;max-width:none}
+.teaser__line:last-child small{display:block;font-family:'Fira Mono',monospace;font-style:normal;font-size:var(--t-2);letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-top:.9rem}
+.teaser__bar{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.teaser__dots{display:flex;gap:.4rem}
+.teaser__dot{width:22px;height:2px;background:var(--line);transition:background-color .3s ease}
+.teaser__dot.on{background:var(--accent)}
+.teaser__btn{
+  background:none;border:1px solid var(--line);color:var(--fg-soft);cursor:pointer;
+  font-family:'Fira Mono',monospace;font-size:var(--t-1);letter-spacing:.08em;text-transform:uppercase;padding:.32rem .7rem;
+}
+.teaser__btn:hover{color:var(--fg);border-color:var(--fg)}
+
+/* ─────────────────────────────────────────────
+   CIDADES
+   ───────────────────────────────────────────── */
+.cities{display:grid;gap:1.6rem}
+@media (min-width:820px){.cities{grid-template-columns:1fr 1fr}}
+.city{border:1.5px solid var(--keyline);border-top-width:5px;background:var(--ground-2);display:flex;flex-direction:column}
+.city--luz{border-top-color:var(--tint-luz)}
+.city--sombra{border-top-color:var(--tint-sombra)}
+.city figure{margin:0;position:relative;overflow:hidden;aspect-ratio:5/3;background:var(--ground);border-bottom:1.5px solid var(--keyline)}
+.city figure img{width:100%;height:100%;object-fit:cover;object-position:center 46%}
+.city__body{padding:1.5rem 1.5rem 1.7rem;display:flex;flex-direction:column;gap:.7rem;flex:1}
+.city__body h3{font-size:var(--t-6);font-style:italic;font-weight:900}
+.city__body p{color:var(--fg-soft);font-size:var(--t-3)}
+.city__meta{margin-top:auto;padding-top:1rem;border-top:1px solid var(--line);display:grid;gap:.45rem}
+.city__meta div{display:flex;gap:.7rem;font-family:'Fira Mono',monospace;font-size:var(--t-1)}
+.city__meta dt{color:var(--fg-soft);letter-spacing:.06em;text-transform:uppercase;min-width:6.5rem;flex:none}
+.city__meta dd{margin:0;color:var(--fg)}
+
+/* ─────────────────────────────────────────────
+   ELENCO
+   ───────────────────────────────────────────── */
+.cast{display:grid;gap:1.1rem;grid-template-columns:repeat(auto-fit, minmax(15.5rem, 1fr))}
+.who{border:1px solid var(--line);background:var(--ground-2);padding:1.35rem;display:flex;flex-direction:column;gap:.55rem;transition:border-color .25s ease, transform .25s ease}
+.who:hover{border-color:var(--accent);transform:translateY(-3px)}
+.who h3{font-size:var(--t-5);font-style:italic;font-weight:900}
+.who p{font-size:var(--t-2);color:var(--fg-soft)}
+.who .role{font-family:'Fira Mono',monospace;font-size:var(--t-1);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.who--unknown{border-style:dashed}
+
+/* ─────────────────────────────────────────────
+   ATOS  ·  aqui a numeração é informação: é sequência
+   ───────────────────────────────────────────── */
+.acts{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.act{display:grid;grid-template-columns:3.4rem 1fr;gap:1.4rem;padding:1.7rem 0;border-top:1px solid var(--line)}
+.act:first-child{border-top:none;padding-top:0}
+.act__n{font-family:'Bodoni Moda',Georgia,serif;font-style:italic;font-weight:900;font-size:2.1rem;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.act__body{display:flex;flex-direction:column;gap:.6rem}
+.act__body h3{font-size:var(--t-5)}
+.act__body p{color:var(--fg-soft);font-size:var(--t-3);max-width:58ch}
+@media (min-width:820px){
+  .act__body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,15rem);column-gap:3rem;row-gap:.6rem;align-items:start}
+  .act__body h3{grid-column:1 / -1}
+  .act__body p{grid-column:1;grid-row:2}
+  .act__body .pills{grid-column:2;grid-row:2;align-content:start}
+}
+.pills{display:flex;flex-wrap:wrap;gap:.35rem}
+.pill{font-family:'Fira Mono',monospace;font-size:var(--t-1);border:1px solid var(--line);padding:.2rem .55rem;color:var(--fg-soft)}
+@media (max-width:600px){.act{grid-template-columns:2.4rem 1fr;gap:1rem}.act__n{font-size:1.6rem}}
+
+/* ─────────────────────────────────────────────
+   ENTIDADE DAS PERGUNTAS
+   ───────────────────────────────────────────── */
+.ask{display:grid;gap:2rem}
+@media (min-width:900px){.ask{grid-template-columns:1fr 1fr;gap:3rem;align-items:start}}
+.ask__panel{border:1.5px solid var(--keyline);padding:1.6rem;background:var(--ground-2)}
+.ask__q{font-family:'Bodoni Moda',Georgia,serif;font-style:italic;font-weight:400;font-size:var(--t-5);line-height:1.35;margin-bottom:1.3rem}
+.ask__opts{display:grid;gap:.55rem}
+.opt{
+  text-align:left;background:transparent;border:1px solid var(--line);color:var(--fg);
+  padding:.75rem .9rem;cursor:pointer;font:400 var(--t-3)/1.45 'Fira Sans',sans-serif;
+  transition:border-color .2s ease, background-color .2s ease;
+}
+.opt:hover{border-color:var(--fg)}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, transparent)}
+.ask__out{
+  margin-top:1.2rem;padding-top:1.1rem;border-top:1px solid var(--line);
+  font-family:'Fira Mono',monospace;font-size:var(--t-2);line-height:1.7;color:var(--fg-soft);min-height:4.6rem;
+}
+.ask__out b{color:var(--accent);font-weight:400}
+.ask__note{font-size:var(--t-2);color:var(--fg-soft);margin-top:1rem}
+
+/* ─────────────────────────────────────────────
+   SIDEQUESTS
+   ───────────────────────────────────────────── */
+.quests{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit, minmax(16rem, 1fr));list-style:none;margin:0;padding:0}
+.quest{border:1px solid var(--line);padding:1.25rem;display:flex;flex-direction:column;gap:.5rem;background:var(--ground-2)}
+.quest h3{font-size:var(--t-4);font-weight:700}
+.quest .en{font-family:'Fira Mono',monospace;font-size:var(--t-1);color:var(--fg-soft);letter-spacing:.04em}
+.quest p{font-size:var(--t-2);color:var(--fg-soft)}
+.quest .state{margin-top:auto;padding-top:.7rem;font-family:'Fira Mono',monospace;font-size:var(--t-1);letter-spacing:.06em;text-transform:uppercase;color:var(--fg-soft)}
+.quest .state.now{color:var(--accent)}
+
+/* ─────────────────────────────────────────────
+   PRODUÇÃO  ·  ficha + progresso + em aberto
+   ───────────────────────────────────────────── */
+.two{display:grid;gap:2.6rem}
+@media (min-width:900px){.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3.5rem}}
+
+.spec{display:grid;gap:0;margin:0}
+.spec div{display:grid;grid-template-columns:9.5rem 1fr;gap:1rem;padding:.6rem 0;border-top:1px solid var(--line)}
+.spec div:first-child{border-top:none}
+.spec dt{font-family:'Fira Mono',monospace;font-size:var(--t-1);letter-spacing:.08em;text-transform:uppercase;color:var(--fg-soft);padding-top:.15rem}
+.spec dd{margin:0;font-size:var(--t-3)}
+@media (max-width:520px){.spec div{grid-template-columns:1fr;gap:.15rem}}
+
+.prog{display:grid;gap:1.3rem;list-style:none;margin:0;padding:0}
+.prog li{display:grid;gap:.45rem}
+.prog__top{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;font-family:'Fira Mono',monospace;font-size:var(--t-1);letter-spacing:.07em;text-transform:uppercase}
+.prog__top span:last-child{color:var(--accent);font-variant-numeric:tabular-nums}
+.prog__track{height:9px;background:color-mix(in srgb, var(--fg) 14%, transparent)}
+.prog__fill{display:block;height:100%;background:var(--accent);width:0;transition:width 1.1s cubic-bezier(.2,.7,.3,1)}
+.prog p{font-size:var(--t-2);color:var(--fg-soft)}
+
+.open{list-style:none;margin:0;padding:0;display:grid;gap:.9rem;counter-reset:o}
+.open li{display:grid;grid-template-columns:1.9rem 1fr;gap:.7rem;font-size:var(--t-3);align-items:baseline}
+.open li p{margin:0}
+.open li::before{
+  counter-increment:o;content:"?" counter(o);
+  font-family:'Fira Mono',monospace;font-size:var(--t-1);color:var(--accent);letter-spacing:.05em;
+}
+.open b{font-weight:700}
+.open span{color:var(--fg-soft)}
+
+/* FAQ */
+.faq{display:grid;gap:0;margin-top:.5rem;max-width:56rem}
+.faq details{border-top:1px solid var(--line)}
+.faq details:last-child{border-bottom:1px solid var(--line)}
+.faq summary{
+  cursor:pointer;padding:1rem 2rem 1rem 0;position:relative;list-style:none;
+  font-size:var(--t-4);font-weight:400;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";position:absolute;right:.2rem;top:.85rem;font-family:'Fira Mono',monospace;color:var(--accent);font-size:1.2rem}
+.faq details[open] summary::after{content:"–"}
+.faq details[open] summary{color:var(--accent)}
+.faq p{padding:0 2rem 1.2rem 0;color:var(--fg-soft);font-size:var(--t-3);max-width:62ch}
+
+/* rodapé */
+.foot{padding-block:3rem 3.5rem;border-top:1px solid var(--line);display:grid;gap:.6rem}
+.foot p{font-family:'Fira Mono',monospace;font-size:var(--t-1);color:var(--fg-soft);letter-spacing:.04em;line-height:1.9}
+
+/* revelação ao rolar */
+.rise{opacity:0;transform:translateY(14px);transition:opacity .7s ease, transform .7s ease}
+.rise.seen{opacity:1;transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important}
+  html{scroll-behavior:auto}
+  .rise{opacity:1;transform:none}
+  .teaser__line{opacity:1;transform:none;position:relative}
+  .teaser__stage{display:grid;gap:1.2rem;place-items:start}
+  .teaser__line{grid-area:auto}
+}
+</style>
+
+<noscript><style>
+  .rise{opacity:1;transform:none}
+  .teaser__stage{display:grid;gap:1.2rem;place-items:start}
+  .teaser__line{grid-area:auto;opacity:1;transform:none;position:relative}
+  .teaser__bar{display:none}
+  .prog__fill{width:100% !important;opacity:.35}
+</style></noscript>
+
+<nav class="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" href="#topo">Dualidade <span>wiki de dev</span></a>
+    <div class="nav__links">
+      <a href="#sinopse">Sinopse</a>
+      <a href="#cidades">Cidades</a>
+      <a href="#elenco">Elenco</a>
+      <a href="#atos">Atos</a>
+      <a href="#entidade">Entidade</a>
+      <a href="#sidequests">Sidequests</a>
+      <a href="#producao">Produção</a>
+    </div>
+    <button class="flip" id="flip" type="button" aria-pressed="false">
+      <span class="flip__disc" aria-hidden="true"></span>
+      <span id="flipText">Ver pela Sombra</span>
+    </button>
+  </div>
+</nav>
+
+<header class="hero" id="topo">
+  <div class="hero__ink" aria-hidden="true"></div>
+  <div class="shell hero__grid">
+    <div class="hero__type">
+      <span class="label">RPG psicológico · RPG Maker MV · em desenvolvimento</span>
+      <h1 class="hero__title">
+        <b>Dualidade</b>
+        <i>Uma Jornada do Eu</i>
+      </h1>
+      <div class="hero__rule" aria-hidden="true"></div>
+      <p class="hero__tag">Duas cidades. Um espelho. <em>Uma pergunta que só você pode responder.</em></p>
+      <div class="chips">
+        <span class="chip">PC</span>
+        <span class="chip">Português&nbsp;(BR)</span>
+        <span class="chip">5 atos</span>
+        <span class="chip">Escolhas com consequência</span>
+        <span class="chip chip--flag">Sem data de lançamento</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn--solid" href="#sinopse">Ler a sinopse</a>
+        <a class="btn btn--ghost" href="#producao">Ficha técnica</a>
+      </div>
+    </div>
+    <figure class="poster">
+      <span class="poster__frame">
+        <img src="{{POSTER}}" width="820" height="1759" alt="Key art de Dualidade: um rosto dividido ao meio — metade em cores vivas e sorrindo, metade em nanquim hachurado com uma lágrima — e o título correndo na vertical sobre a divisão.">
+        <span class="poster__veil poster__veil--luz" aria-hidden="true"></span>
+        <span class="poster__veil poster__veil--sombra" aria-hidden="true"></span>
+      </span>
+      <figcaption class="poster__cap">key art · o outro lado continua ali</figcaption>
+    </figure>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── SINOPSE ─────────────────────────────── -->
+  <section class="band" id="sinopse">
+    <div class="shell rise">
+      <div class="head">
+        <span class="label">Sinopse · sem spoilers</span>
+        <h2>Uma cidade perfeita, e o vazio que ela esconde</h2>
+      </div>
+      <div class="measure" style="display:grid;gap:1.1rem">
+        <p class="lede">Reflex tem 20 anos e vive na Cidade da Luz — vibrante, organizada, aparentemente perfeita. Só que os dias se repetem, as pessoas se cumprimentam sem se olhar nos olhos, e um vazio silencioso cresce dentro dele, sem nome e sem explicação.</p>
+        <p class="soft">Guiado por pistas enigmáticas deixadas por uma recém-chegada chamada Max, ele descobre a Cidade das Sombras: o espelho distorcido da Luz, onde tudo o que foi reprimido continua vivo, gritando. Para entender por que sente que “nada importa”, Reflex vai ter que atravessar os dois mundos — e conviver com o que cada um deles guarda.</p>
+        <p class="soft">A travessia não é magia nem teletransporte. É sempre metáfora psicológica. E, aos poucos, fica claro que as duas cidades talvez nunca tenham sido lugares.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TEASER ──────────────────────────────── -->
+  <section class="band band--inverse" aria-label="Cartelas do teaser">
+    <div class="shell teaser">
+      <span class="label">Teaser · cartelas</span>
+      <div class="teaser__stage" id="stage">
+        <p class="teaser__line" data-card>Os dias se repetem.</p>
+        <p class="teaser__line" data-card>As pessoas se cumprimentam sem se olhar nos olhos.</p>
+        <p class="teaser__line" data-card>E existe uma cidade onde nada disso foi esquecido.</p>
+        <p class="teaser__line" data-card><em>Dualidade</em><small>Uma Jornada do Eu</small></p>
+      </div>
+      <div class="teaser__bar">
+        <div class="teaser__dots" id="dots" aria-hidden="true"></div>
+        <button class="teaser__btn" id="teaserBtn" type="button">Pausar</button>
+        <span class="soft" style="font-size:var(--t-1);font-family:'Fira Mono',monospace">sem áudio · o trailer ainda não existe</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CIDADES ─────────────────────────────── -->
+  <section class="band" id="cidades">
+    <div class="shell rise">
+      <div class="head">
+        <span class="label">O mundo</span>
+        <h2>Duas cidades, uma única mente</h2>
+        <p>A alternância entre elas nunca é um truque de fantasia. É o que Reflex mostra e o que Reflex engoliu, desenhados como geografia.</p>
+      </div>
+      <div class="cities">
+        <article class="city city--luz">
+          <figure><img src="{{LUZ}}" width="400" height="681" alt="Detalhe da key art: o olho do lado colorido, íris em azul, laranja e amarelo, sobre papel texturizado."></figure>
+          <div class="city__body">
+            <h3>Cidade da Luz</h3>
+            <p>Ensolarada, impecável, funcionando como um relógio. Todo mundo sorri. Mas a vitalidade está indo embora aos poucos, consumida por uma apatia que ninguém nomeia — e quanto mais perfeita a cidade fica, menos gente parece estar realmente ali.</p>
+            <dl class="city__meta">
+              <div><dt>Registro</dt><dd>Fachada</dd></div>
+              <div><dt>Clima</dt><dd>Dia permanente</dd></div>
+              <div><dt>Mapa-chave</dt><dd>Praça da Harmonia</dd></div>
+              <div><dt>Aliado</dt><dd>Lyra</dd></div>
+            </dl>
+          </div>
+        </article>
+        <article class="city city--sombra">
+          <figure><img src="{{SOM}}" width="400" height="761" alt="Detalhe da key art: o olho do lado em nanquim hachurado, com uma lágrima escorrendo."></figure>
+          <div class="city__body">
+            <h3>Cidade das Sombras</h3>
+            <p>Caótica, degradada, em crepúsculo permanente — e mais viva do que a Luz conseguiu ser. Aqui as emoções não têm filtro: a raiva, o medo e a culpa continuam ocupando os prédios que a Luz demoliu.</p>
+            <dl class="city__meta">
+              <div><dt>Registro</dt><dd>Reprimido</dd></div>
+              <div><dt>Clima</dt><dd>Crepúsculo</dd></div>
+              <div><dt>Mapa-chave</dt><dd>Praça Fraturada</dd></div>
+              <div><dt>Aliado</dt><dd>Erebus</dd></div>
+            </dl>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ELENCO ──────────────────────────────── -->
+  <section class="band" id="elenco">
+    <div class="shell rise">
+      <div class="head">
+        <span class="label">Elenco</span>
+        <h2>Quem habita os dois lados</h2>
+        <p>Cinco figuras, nenhum par romântico. Ninguém aqui existe para salvar Reflex — só para mostrar a ele um pedaço do que ele é.</p>
+      </div>
+      <div class="cast">
+        <article class="who">
+          <span class="role">Protagonista</span>
+          <h3>Reflex</h3>
+          <p>20 anos. Pesadelos recorrentes e uma sensação de vazio que ele não consegue nomear. É o único que atravessa — e cada travessia cobra alguma coisa.</p>
+        </article>
+        <article class="who">
+          <span class="role">Catalisadora</span>
+          <h3>Max</h3>
+          <p>Recém-chegada. A única que enxerga a dualidade que todo mundo escolheu ignorar. Não guia Reflex pela mão: abre a porta e segue o próprio caminho.</p>
+        </article>
+        <article class="who">
+          <span class="role">Companheira · Luz</span>
+          <h3>Lyra</h3>
+          <p>Otimista por fora, insegura por dentro. Defende que a Luz pode ser salva — mesmo tendo, lá no fundo, parado de acreditar nisso faz tempo.</p>
+        </article>
+        <article class="who">
+          <span class="role">Companheiro · Sombras</span>
+          <h3>Erebus</h3>
+          <p>Carrega a raiva de quem foi ignorado tempo demais. Para ele a Luz é a mentira, a Sombra é a única verdade, e integrar os dois é covardia.</p>
+        </article>
+        <article class="who who--unknown">
+          <span class="role">Natureza revelada no Ato IV</span>
+          <h3>A Entidade das Perguntas</h3>
+          <p>Aparece nas transições entre os mundos para perguntar sobre culpa, perdão e perda. Nem vilã, nem aliada: um espelho que fala e não aceita silêncio como resposta.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ATOS ────────────────────────────────── -->
+  <section class="band" id="atos">
+    <div class="shell rise">
+      <div class="head">
+        <span class="label">Estrutura</span>
+        <h2>A jornada em cinco atos</h2>
+        <p>A ordem importa: cada ato só faz sentido depois do anterior ter cobrado seu preço.</p>
+      </div>
+      <ol class="acts">
+        <li class="act">
+          <span class="act__n" aria-hidden="true">I</span>
+          <div class="act__body">
+            <h3><span class="mono soft" style="font-size:var(--t-1)">Ato I ·</span> O Despertar</h3>
+            <p>O vazio deixa de ser um incômodo de fundo e vira um chamado. Reflex segue as pistas de Max e encontra o primeiro caminho até a Cidade das Sombras.</p>
+            <div class="pills"><span class="pill">desconexão</span><span class="pill">apatia</span><span class="pill">curiosidade</span></div>
+          </div>
+        </li>
+        <li class="act">
+          <span class="act__n" aria-hidden="true">II</span>
+          <div class="act__body">
+            <h3><span class="mono soft" style="font-size:var(--t-1)">Ato II ·</span> A Desordem</h3>
+            <p>Lyra e Erebus entram na história puxando para lados opostos. Reflex começa a perceber que cada cidade é um reflexo distorcido dele mesmo — e que os dois estão errados sozinhos.</p>
+            <div class="pills"><span class="pill">contraste</span><span class="pill">emoções reprimidas</span><span class="pill">esperança</span><span class="pill">raiva</span></div>
+          </div>
+        </li>
+        <li class="act">
+          <span class="act__n" aria-hidden="true">III</span>
+          <div class="act__body">
+            <h3><span class="mono soft" style="font-size:var(--t-1)">Ato III ·</span> O Confronto Interior</h3>
+            <p>As barreiras entre os mundos ruem. Memórias desconfortáveis vazam de um lado para o outro e Reflex precisa encarar o que evitou por anos — inclusive dentro dos mapas que já conhecia.</p>
+            <div class="pills"><span class="pill">medo</span><span class="pill">culpa</span><span class="pill">sacrifício</span></div>
+          </div>
+        </li>
+        <li class="act">
+          <span class="act__n" aria-hidden="true">IV</span>
+          <div class="act__body">
+            <h3><span class="mono soft" style="font-size:var(--t-1)">Ato IV ·</span> A Revelação</h3>
+            <p>A verdade vem à tona: as cidades nunca foram lugares, e a Entidade nunca foi estranha. Reflex decide se vai integrar ou rejeitar os dois lados de si — e é aqui que as respostas dadas até agora cobram a conta.</p>
+            <div class="pills"><span class="pill">aceitação</span><span class="pill">perdão</span><span class="pill">transformação</span></div>
+          </div>
+        </li>
+        <li class="act">
+          <span class="act__n" aria-hidden="true">V</span>
+          <div class="act__body">
+            <h3><span class="mono soft" style="font-size:var(--t-1)">Ato V ·</span> O Renascimento</h3>
+            <p>O equilíbrio volta — não perfeito, mas real. Luz e Sombra aprendem a coexistir sem que nenhuma das duas precise vencer. O estado final da cidade depende de quem Reflex escolheu ser.</p>
+            <div class="pills"><span class="pill">equilíbrio</span><span class="pill">resiliência</span><span class="pill">esperança renovada</span></div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ── ENTIDADE ────────────────────────────── -->
+  <section class="band band--inverse" id="entidade">
+    <div class="shell rise">
+      <div class="head">
+        <span class="label">Mecânica central</span>
+        <h2>A Entidade das Perguntas</h2>
+      </div>
+      <div class="ask">
+        <div style="display:grid;gap:1.1rem">
+          <p class="lede">Em cada transição entre os mundos, uma presença neutra apresenta a Reflex uma situação específica do passado dele — e faz uma pergunta direta.</p>
+          <p class="soft">Não existe resposta certa e não existe pontuação visível. Cada escolha altera diálogos futuros, o estado emocional de Reflex e o final do jogo. A Entidade nunca comenta a resposta: ela só devolve o silêncio e desaparece até a próxima travessia.</p>
+          <p class="soft">Experimente uma delas abaixo — a leitura de consequência é ilustrativa, para mostrar o formato.</p>
+        </div>
+        <div class="ask__panel">
+          <p class="ask__q">“Tem coisas que não voltam — pessoas, versões de você mesmo, oportunidades. Você consegue construir algo novo sem precisar que o antigo retorne?”</p>
+          <div class="ask__opts" role="group" aria-label="Respostas possíveis">
+            <button class="opt" type="button" aria-pressed="false"
+              data-out="<b>Leitura:</b> aceitação.<br>Reflex passa a olhar as pessoas nos olhos na Praça da Harmonia. Erebus fica mais duro com ele no Ato III.">Consigo. O novo não apaga o que foi real.</button>
+            <button class="opt" type="button" aria-pressed="false"
+              data-out="<b>Leitura:</b> culpa.<br>A Praça Fraturada ganha uma passagem nova no Ato III. Lyra começa a evitar o assunto — e Reflex começa a evitar Lyra.">Ainda não. Perder parece que foi culpa minha.</button>
+            <button class="opt" type="button" aria-pressed="false"
+              data-out="<b>Leitura:</b> adiamento.<br>Nenhum dos dois lados se fecha. A Entidade volta antes do previsto, e faz a mesma pergunta com outras palavras.">Talvez. Mas preciso de mais tempo.</button>
+          </div>
+          <p class="ask__out" id="askOut" aria-live="polite">Escolha uma resposta.</p>
+          <p class="ask__note">Nenhuma opção é penalizada. Adiar também é uma resposta.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SIDEQUESTS ──────────────────────────── -->
+  <section class="band" id="sidequests">
+    <div class="shell rise">
+      <div class="head">
+        <span class="label">Sidequests · 8 roteiros escritos</span>
+        <h2>Histórias à margem do caminho</h2>
+        <p>Nenhuma delas é obrigatória e nenhuma dá equipamento. O que elas devolvem é contexto — e, em alguns casos, um pedaço da vitalidade que a Cidade da Luz vem perdendo.</p>
+      </div>
+      <ul class="quests">
+        <li class="quest"><h3>A Canção Silenciosa</h3><span class="en">The Silent Song</span><p>Um músico perdeu a vontade de tocar. Resgatar a música dele é resgatar um pedaço da cidade.</p><span class="state">Roteiro pronto</span></li>
+        <li class="quest"><h3>A Pintura Esquecida</h3><span class="en">The Forgotten Painting</span><p>Uma tela sem assinatura guarda a história de um artista que desistiu de ser visto.</p><span class="state">Roteiro pronto</span></li>
+        <li class="quest"><h3>O Mistério das Cartas Perdidas</h3><span class="en">The Mystery of Lost Letters</span><p>Cartas que nunca chegaram ao destino. Histórias interrompidas esperando reconexão.</p><span class="state">Roteiro pronto</span></li>
+        <li class="quest"><h3>O Refúgio dos Gatos</h3><span class="en">The Cat Haven</span><p>Três gatos sumidos e uma mulher que só quer cuidar de alguma coisa num mundo cada vez mais distante.</p><span class="state now">Em implementação</span></li>
+        <li class="quest"><h3>O Espelho da Verdade</h3><span class="en">The Mirror of Truth</span><p>Um espelho que não reflete o que você aparenta — reflete o que você esconde. Olhar tem preço.</p><span class="state">Roteiro pronto</span></li>
+        <li class="quest"><h3>A Chave dos Enigmas</h3><span class="en">The Enigma Key</span><p>Uma sequência de enigmas espalhada pelas duas cidades abre uma área secreta.</p><span class="state">Roteiro pronto</span></li>
+        <li class="quest"><h3>A Árvore da Esperança</h3><span class="en">The Tree of Hope</span><p>Uma árvore-símbolo definhando devagar, como quase tudo na Cidade da Luz.</p><span class="state">Roteiro pronto</span></li>
+        <li class="quest"><h3>A Lenda dos Sussurros Noturnos</h3><span class="en">The Legend of Night Whispers</span><p>Rumores de uma figura que só aparece à noite nas Sombras. Nem toda verdade quer ser encontrada.</p><span class="state">Roteiro pronto</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── PRODUÇÃO ────────────────────────────── -->
+  <section class="band" id="producao">
+    <div class="shell rise">
+      <div class="head">
+        <span class="label">Produção</span>
+        <h2>Onde o projeto está agora</h2>
+      </div>
+      <div class="two">
+        <div>
+          <h3 style="font-size:var(--t-5);margin-bottom:1.1rem">Ficha técnica</h3>
+          <dl class="spec">
+            <div><dt>Título</dt><dd>Dualidade: Uma Jornada do Eu</dd></div>
+            <div><dt>Gênero</dt><dd>RPG narrativo psicológico</dd></div>
+            <div><dt>Motor</dt><dd>RPG Maker MV</dd></div>
+            <div><dt>Plataforma</dt><dd>PC · demais plataformas a definir</dd></div>
+            <div><dt>Idioma</dt><dd>Português (BR) · outros a definir</dd></div>
+            <div><dt>Protagonista</dt><dd>Reflex, 20 anos</dd></div>
+            <div><dt>Estrutura</dt><dd>5 atos + 8 sidequests</dd></div>
+            <div><dt>Romance</dt><dd>Nenhum</dd></div>
+            <div><dt>Combate</dt><dd>Não confirmado</dd></div>
+            <div><dt>Inspirações</dt><dd>OMORI · Life is Strange</dd></div>
+            <div><dt>Lançamento</dt><dd>Sem data · desenvolvimento independente</dd></div>
+          </dl>
+        </div>
+        <div>
+          <h3 style="font-size:var(--t-5);margin-bottom:1.1rem">Progresso</h3>
+          <ul class="prog" id="prog">
+            <li>
+              <div class="prog__top"><span>Roteiro</span><span>Ato I</span></div>
+              <div class="prog__track"><span class="prog__fill" data-w="20%"></span></div>
+              <p>Ato I escrito em prosa. Estrutura dos cinco atos fechada, atos II–V ainda em sinopse.</p>
+            </li>
+            <li>
+              <div class="prog__top"><span>Sidequests</span><span>8 / 8 escritas</span></div>
+              <div class="prog__track"><span class="prog__fill" data-w="100%"></span></div>
+              <p>Todos os roteiros prontos. O Refúgio dos Gatos é a primeira a virar evento no MV.</p>
+            </li>
+            <li>
+              <div class="prog__top"><span>Mapas</span><span>2 em obras</span></div>
+              <div class="prog__track"><span class="prog__fill" data-w="18%"></span></div>
+              <p>Praça da Harmonia (Luz) e Praça Fraturada (Sombra) em construção no RPG Maker MV.</p>
+            </li>
+            <li>
+              <div class="prog__top"><span>Arte</span><span>Key art</span></div>
+              <div class="prog__track"><span class="prog__fill" data-w="12%"></span></div>
+              <p>Ilustração-chave definida. Direção de arte in-game (tilesets, retratos, HUD) ainda em aberto.</p>
+            </li>
+            <li>
+              <div class="prog__top"><span>Áudio</span><span>Não iniciado</span></div>
+              <div class="prog__track"><span class="prog__fill" data-w="0%"></span></div>
+              <p>Sem trilha, sem tema. As duas cidades vão precisar de identidades sonoras opostas.</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EM ABERTO ───────────────────────────── -->
+  <section class="band band--inverse" id="aberto">
+    <div class="shell rise">
+      <div class="head">
+        <span class="label">Em aberto</span>
+        <h2>O que ainda falta decidir</h2>
+        <p>Levantado a partir do material existente. São as lacunas que travam o design daqui pra frente — nada aqui está definido, e por isso não aparece como fato nas outras seções.</p>
+      </div>
+      <div class="two">
+        <ul class="open">
+          <li><p><b>Verbo central do jogo.</b> <span>Sem combate, o que o jogador faz minuto a minuto? Exploração + diálogo + puzzle é o caminho mais provável — falta cravar.</span></p></li>
+          <li><p><b>Regra da travessia.</b> <span>Onde e como Reflex atravessa: ponto fixo, espelhos, sono, gatilho emocional? Isso define o level design das duas cidades.</span></p></li>
+          <li><p><b>Quantos finais.</b> <span>E se são um eixo único (integrar ↔ rejeitar) ou uma combinação das respostas dadas à Entidade.</span></p></li>
+          <li><p><b>A perda concreta de Reflex.</b> <span>A Entidade pergunta sobre perda e culpa. O evento por trás disso precisa existir antes do Ato III.</span></p></li>
+          <li><p><b>Estado emocional visível.</b> <span>Como o jogo mostra isso — sprite, paleta da tela, música, NPCs reagindo? Sem HUD é mais elegante e mais difícil.</span></p></li>
+        </ul>
+        <ul class="open" style="counter-reset:o 5">
+          <li><p><b>Max depois do Ato I.</b> <span>Ela reaparece? Se some de vez, o Ato IV precisa de outra fonte de revelação.</span></p></li>
+          <li><p><b>Destino de Lyra e Erebus.</b> <span>Se as cidades são partes de Reflex, os dois também são. A integração no Ato V faz eles desaparecerem, se fundirem ou continuarem?</span></p></li>
+          <li><p><b>Nome próprio da Entidade.</b> <span>“A Entidade das Perguntas” funciona como descrição de design, não como nome no jogo.</span></p></li>
+          <li><p><b>Direção de arte in-game.</b> <span>A key art é ilustração 2D densa; o MV é tile. Definir se haverá tileset custom, retratos e CGs — e o quanto disso é viável sozinho.</span></p></li>
+          <li><p><b>Escopo real.</b> <span>Duração estimada, se sai demo antes, preço e plataforma. Sem isso não dá pra fechar cronograma.</span></p></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ─────────────────────────────────── -->
+  <section class="band" id="faq">
+    <div class="shell rise">
+      <div class="head">
+        <span class="label">Perguntas frequentes</span>
+        <h2>Antes de perguntar</h2>
+      </div>
+      <div class="faq">
+        <details><summary>É um jogo de terror?</summary><p>Não. É psicológico e melancólico, não de sustos. O desconforto vem do que Reflex reconhece, não do que aparece atrás dele.</p></details>
+        <details><summary>Tem combate?</summary><p>Não confirmado. O foco é exploração, diálogo e escolha. Se existir algum sistema de confronto, ele vai ser interno — não um menu de batalha.</p></details>
+        <details><summary>Tem romance?</summary><p>Não, e é uma decisão de projeto. Max é catalisadora, não interesse amoroso; Lyra e Erebus são partes de Reflex antes de serem companheiros.</p></details>
+        <details><summary>As escolhas importam mesmo?</summary><p>Sim. As respostas dadas à Entidade das Perguntas mudam diálogos futuros, o estado emocional de Reflex e o final. O que elas não fazem é aparecer como número na tela.</p></details>
+        <details><summary>Quando sai? Vai ter demo?</summary><p>Sem data. É desenvolvimento independente e o roteiro completo ainda está sendo escrito. Demo: em aberto.</p></details>
+        <details><summary>Onde vai rodar?</summary><p>PC, por conta do RPG Maker MV. Outras plataformas dependem de escopo e ainda não foram avaliadas.</p></details>
+        <details><summary>Esta página é oficial?</summary><p>É uma wiki de desenvolvimento feita antes do jogo existir. Tudo aqui é material de trabalho e pode mudar — inclusive nomes, atos e mecânicas.</p></details>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="band foot">
+  <div class="shell">
+    <p>Dualidade: Uma Jornada do Eu — wiki de desenvolvimento não-oficial, construída antes do lançamento.</p>
+    <p>Conteúdo sujeito a mudança · última atualização: 30 de julho de 2026</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var root = document.documentElement;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* ── Luz ↔ Sombra ──────────────────────────
+     Usa os mesmos valores light/dark do visualizador,
+     então o botão da página e o tema do leitor não brigam. */
+  var flip = document.getElementById('flip');
+  var flipText = document.getElementById('flipText');
+
+  function currentIsDark(){
+    var attr = root.getAttribute('data-theme');
+    if (attr === 'dark' || attr === 'sombra') return true;
+    if (attr === 'light' || attr === 'luz') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function syncFlip(){
+    var dark = currentIsDark();
+    flip.setAttribute('aria-pressed', String(dark));
+    flipText.textContent = dark ? 'Ver pela Luz' : 'Ver pela Sombra';
+  }
+  flip.addEventListener('click', function(){
+    root.setAttribute('data-theme', currentIsDark() ? 'light' : 'dark');
+    syncFlip();
+  });
+  new MutationObserver(syncFlip).observe(root, {attributes:true, attributeFilter:['data-theme']});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncFlip);
+  syncFlip();
+
+  /* ── revelação ao rolar ─────────────────── */
+  var rises = document.querySelectorAll('.rise');
+  if ('IntersectionObserver' in window){
+    var ioRise = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('seen'); ioRise.unobserve(e.target); } });
+    }, {threshold:.1, rootMargin:'0px 0px -8% 0px'});
+    rises.forEach(function(el){ ioRise.observe(el); });
+  } else {
+    rises.forEach(function(el){ el.classList.add('seen'); });
+  }
+
+  /* ── barras de progresso ────────────────── */
+  var prog = document.getElementById('prog');
+  function fill(){
+    prog.querySelectorAll('.prog__fill').forEach(function(el){ el.style.width = el.dataset.w; });
+  }
+  if ('IntersectionObserver' in window){
+    var ioProg = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if (e.isIntersecting){ fill(); ioProg.disconnect(); } });
+    }, {threshold:.35});
+    ioProg.observe(prog);
+  } else { fill(); }
+
+  /* ── cartelas do teaser ─────────────────── */
+  var cards = Array.prototype.slice.call(document.querySelectorAll('[data-card]'));
+  var dots = document.getElementById('dots');
+  var tBtn = document.getElementById('teaserBtn');
+  var idx = -1, timer = null, playing = false;
+
+  cards.forEach(function(){
+    var d = document.createElement('span');
+    d.className = 'teaser__dot';
+    dots.appendChild(d);
+  });
+  var dotEls = Array.prototype.slice.call(dots.children);
+
+  function show(i){
+    idx = i;
+    cards.forEach(function(c, n){ c.classList.toggle('on', n === i); });
+    dotEls.forEach(function(d, n){ d.classList.toggle('on', n === i); });
+  }
+  function clear(){
+    cards.forEach(function(c){ c.classList.remove('on'); });
+    dotEls.forEach(function(d){ d.classList.remove('on'); });
+  }
+  function step(){
+    clear();
+    timer = setTimeout(function(){
+      var next = (idx + 1) % cards.length;
+      show(next);
+      timer = setTimeout(step, next === cards.length - 1 ? 3400 : 2400);
+    }, 380);
+  }
+  function play(){
+    if (playing) return;
+    playing = true; tBtn.textContent = 'Pausar';
+    timer = setTimeout(step, 260);
+  }
+  function pause(){
+    playing = false; tBtn.textContent = 'Reproduzir';
+    clearTimeout(timer);
+  }
+  tBtn.addEventListener('click', function(){ playing ? pause() : play(); });
+
+  if (reduce.matches){
+    cards.forEach(function(c){ c.classList.add('on'); });
+    dotEls.forEach(function(d){ d.classList.add('on'); });
+    tBtn.hidden = true;
+  } else {
+    show(0);
+    if ('IntersectionObserver' in window){
+      var ioT = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ e.isIntersecting ? play() : pause(); });
+      }, {threshold:.4});
+      ioT.observe(document.getElementById('stage'));
+    } else { play(); }
+  }
+
+  /* ── Entidade das Perguntas ─────────────── */
+  var out = document.getElementById('askOut');
+  var opts = Array.prototype.slice.call(document.querySelectorAll('.opt'));
+  opts.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      opts.forEach(function(o){ o.setAttribute('aria-pressed', String(o === btn)); });
+      out.innerHTML = btn.dataset.out;
+    });
+  });
+})();
+</script>
