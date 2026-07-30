@@ -1,0 +1,70 @@
+name: Publicar site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/**'
+      - 'assets/**'
+      - 'index.html'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+# permissoes minimas para o deploy-pages autenticar via OIDC
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# uma publicacao por vez; nao cancela a que esta em andamento
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Gerar a pagina
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar o Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # regenera a partir do template: o index.html publicado nunca
+      # sai de sincronia com tools/page.template.html
+      - name: Gerar o index.html
+        run: python3 tools/build_page.py
+
+      - name: Montar o site
+        run: |
+          mkdir -p _site
+          cp index.html _site/index.html
+          touch _site/.nojekyll
+
+      # enablement: liga o GitHub Pages e aponta a origem para Actions
+      # na primeira execucao, sem precisar mexer em Settings
+      - name: Configurar o Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Enviar o artefato
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Publicar
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
