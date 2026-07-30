@@ -27,6 +27,24 @@ python3 tools/build_page.py
 O `index.html` é gerado — qualquer alteração feita direto nele some no próximo
 build.
 
+## Publicação
+
+O site sai em **https://luwey-silva.github.io/Reflex/**.
+
+A publicação é automática: todo push na `main` que toque em `index.html`,
+`assets/` ou `tools/` dispara `.github/workflows/pages.yml`, que regenera a
+página a partir do template e publica. Dá pra rodar à mão também, em
+**Actions → Publicar site → Run workflow**.
+
+O workflow liga o GitHub Pages sozinho na primeira execução
+(`configure-pages` com `enablement: true`) — não precisa mexer em Settings. Se a
+organização bloquear isso, o caminho manual é **Settings → Pages → Source →
+GitHub Actions** e rodar o workflow de novo.
+
+Como o `index.html` é autocontido e está na raiz, o modo antigo
+(**Settings → Pages → Deploy from a branch → `main` / `/root`**) também
+funciona — o `.nojekyll` na raiz está lá para isso.
+
 ## Notas de conteúdo
 
 A página é **material de trabalho**, não divulgação oficial. Nada que ainda não
