@@ -27,22 +27,6 @@ que travam o design daqui pra frente.
 
 ---
 
-## Publicação
-
-As duas páginas saem juntas em **https://luwey-silva.github.io/Reflex/**, pelo
-workflow `.github/workflows/pages.yml`. Ele roda a cada push na `main` que toque
-qualquer uma delas, regenera o `index.html` a partir do template e publica.
-Também dá pra rodar à mão em **Actions → Publicar site → Run workflow**.
-
-### Ligar o Pages (uma vez só)
-
-O workflow não consegue ligar o Pages sozinho — o `GITHUB_TOKEN` não tem essa
-permissão. Antes do primeiro deploy, vá em:
-
-**Settings → Pages → Build and deployment → Source: GitHub Actions**
-
-Depois disso todo push na `main` publica sozinho.
-
 ## Licença
 
 MIT © 2026 Luwey Da Silva
