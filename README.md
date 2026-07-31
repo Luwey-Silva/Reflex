@@ -139,8 +139,6 @@ Desenvolvimento independente, em andamento. Ainda não existe build jogável.
   elenco, atos e a mecânica das perguntas, com a Entidade jogável.
 - [`docs/DUALIDADE.md`](docs/DUALIDADE.md) — o material de trabalho completo,
   incluindo as decisões que ainda faltam.
-- [`docs/DESENVOLVIMENTO.md`](docs/DESENVOLVIMENTO.md) — como a página é gerada
-  e publicada.
 
 ## Licença
 
